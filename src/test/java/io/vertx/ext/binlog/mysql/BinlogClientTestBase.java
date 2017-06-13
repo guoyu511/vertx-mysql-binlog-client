@@ -1,6 +1,8 @@
 package io.vertx.ext.binlog.mysql;
 
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 
 import java.sql.Connection;
@@ -10,6 +12,7 @@ import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -32,6 +35,8 @@ public class BinlogClientTestBase extends VertxTestBase {
     "CREATE TABLE `binlog_client_test` (`id` int(11) NOT NULL AUTO_INCREMENT,`name` varchar(100) NOT NULL,PRIMARY KEY (`id`));"
   };
 
+  protected BinlogClient client;
+
   @BeforeClass
   public static void init() throws Exception {
     conn = DriverManager.getConnection(
@@ -44,10 +49,40 @@ public class BinlogClientTestBase extends VertxTestBase {
     }
     rows = IntStream
       .iterate(1, i -> i + 1)
-      .limit(100)
+      .limit(1000)
       .boxed()
       .map(i -> new AbstractMap.SimpleEntry<>(i, UUID.randomUUID().toString()))
       .collect(Collectors.toList());
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    super.setUp();
+    client = BinlogClient.create(vertx,
+      new BinlogClientOptions()
+        .setUsername(config().getString("user"))
+        .setPassword(config().getString("password"))
+        .setHost(config().getString("host"))
+        .setPort(config().getInteger("port"))
+        .setSchema(config().getString("schema"))
+        .setSendMessage(true)
+        .setHeartbeatInterval(5000)
+    );
+    CountDownLatch latch = new CountDownLatch(1);
+    client.start(onSuccess((ignore) ->
+      latch.countDown()
+    ));
+    awaitLatch(latch);
+  }
+
+  @After
+  public void after() throws Exception {
+    CountDownLatch latch = new CountDownLatch(1);
+    client.stop((ignore) ->
+      latch.countDown()
+    );
+    awaitLatch(latch);
+    delete();
   }
 
   static JsonObject config() {
@@ -85,6 +120,10 @@ public class BinlogClientTestBase extends VertxTestBase {
 
   List<Map.Entry<Integer, String>> rows() {
     return rows;
+  }
+
+  Integer lastId() {
+    return rows.get(rows.size() - 1).getKey();
   }
 
   void executeSql(String sql) {
