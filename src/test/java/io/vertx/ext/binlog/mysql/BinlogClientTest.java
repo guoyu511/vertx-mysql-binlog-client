@@ -59,7 +59,7 @@ public class BinlogClientTest extends BinlogClientTestBase {
       JsonObject json = event.body();
       Integer id = json.getInteger("id");
       String name = json.getString("name");
-      Map.Entry<Integer, String> expectedRow = rows.get(counter.getAndIncrement());
+      Map.Entry<Integer, String> expectedRow = rows().get(counter.getAndIncrement());
       assertEquals(expectedRow.getKey(), id);
       assertEquals(expectedRow.getValue(), name);
       if (id == 100) {
@@ -84,7 +84,7 @@ public class BinlogClientTest extends BinlogClientTestBase {
       JsonObject json = event.body();
       Integer id = json.getInteger("id");
       String name = json.getString("name");
-      Map.Entry<Integer, String> expectedRow = rows.get(counter.getAndIncrement());
+      Map.Entry<Integer, String> expectedRow = rows().get(counter.getAndIncrement());
       assertEquals(expectedRow.getKey(), id);
       assertEquals(expectedRow.getValue(), name);
       if (id == 100) {
@@ -109,7 +109,7 @@ public class BinlogClientTest extends BinlogClientTestBase {
       JsonObject json = event.body();
       Integer id = json.getInteger("id");
       String name = json.getString("name");
-      Map.Entry<Integer, String> expectedRow = rows.get(counter.getAndIncrement());
+      Map.Entry<Integer, String> expectedRow = rows().get(counter.getAndIncrement());
       assertEquals(expectedRow.getKey(), id);
       assertEquals(expectedRow.getValue() + "_updated", name);
       if (id == 100) {

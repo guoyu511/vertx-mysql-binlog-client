@@ -16,4 +16,4 @@ You can run tests with a specified MySQL instance:
 % mvn test -Dbinlog.host=[host] -Dbinlog.port=[port] -Dbinlog.user=[user] -Dbinlog.password=[password] -Dbinlog.schema=[schema]
 ```
 
-Be sure that the user has `ALL` privilege for the given schema.
+Be sure that the user has enough privilege for the given schema, at least `CREATE`, `DROP`, `SELECT`, `INSERT`, `UPDATE` and `REPLICATION CLIENT`.
