@@ -10,7 +10,7 @@
     <version>26</version>
   </parent>
 
-  <artifactId>vertx-mysql-binlog</artifactId>
+  <artifactId>vertx-mysql-binlog-client</artifactId>
   <version>3.4.1-SNAPSHOT</version>
 
   <properties>
