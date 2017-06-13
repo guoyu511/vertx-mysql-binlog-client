@@ -4,15 +4,8 @@ import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.Timer;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import io.vertx.core.Handler;
-import io.vertx.core.eventbus.MessageConsumer;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.WriteStream;
 
@@ -33,7 +26,7 @@ public class ReadStreamTest extends BinlogClientTestBase {
 
     private int counter;
 
-    private int maxSize = 100;
+    private int maxSize = 10; //limited buffer size
 
     private LinkedList<RowEvent> queue = new LinkedList<>();
 

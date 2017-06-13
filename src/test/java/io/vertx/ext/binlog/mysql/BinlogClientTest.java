@@ -44,7 +44,6 @@ public class BinlogClientTest extends BinlogClientTestBase {
       if (!"delete".equals(event.type())) {
         return;
       }
-      System.out.println(event.body());
       assertEquals(config().getString("schema"), event.schema());
       assertEquals("binlog_client_test", event.table());
       assertEquals("delete", event.type());
