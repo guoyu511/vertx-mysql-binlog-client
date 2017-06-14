@@ -9,4 +9,4 @@ addons:
       - oracle-java8-installer
 before_install:
   - mysql -e 'CREATE DATABASE IF NOT EXISTS binlog_test;'
-script: mvn -DargLine="-Dbinlog.user=root -Dbinlog.host=guoyu511.io -Dbinlog.port=3306 -Dbinlog.schema=binlog_test" clean test-compile test
+script: mvn -DargLine="-Dbinlog.user=root -Dbinlog.host=127.0.0.1 -Dbinlog.port=3306 -Dbinlog.schema=binlog_test" clean test-compile test
