@@ -7,6 +7,7 @@
   <groupId>io.github.guoyu511</groupId>
   <artifactId>vertx-mysql-binlog</artifactId>
   <version>1.0.0-SNAPSHOT</version>
+  <description>A Vert.x client allowing applications tapping into MySQL replication stream.</description>
 
   <properties>
     <stack.version>3.4.1</stack.version>

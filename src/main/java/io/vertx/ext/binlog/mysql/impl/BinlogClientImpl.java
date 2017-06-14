@@ -77,6 +77,9 @@ public class BinlogClientImpl implements BinlogClient {
       options.getUsername(),
       options.getPassword()
     );
+    if (options.getBinlogFilename() != null) {
+      client.setBinlogFilename(options.getBinlogFilename());
+    }
     if (options.getBinlogPosition() != -1) {
       client.setBinlogPosition(options.getBinlogPosition());
     }
