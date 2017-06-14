@@ -1,6 +1,6 @@
 # MySQL Binlog client for Vert.x
 
-![](https://api.travis-ci.org/guoyu511/vertx-mysql-binlog-client.svg?branch=master)
+![](https://travis-ci.org/guoyu511/vertx-mysql-binlog-client.svg?branch=master)
 
 A Vert.x client allowing applications tapping into MySQL replication stream.
 
@@ -79,7 +79,7 @@ binlogClient.start((ar) -> {
 
 After connected to the MySQL master as a slave, the client can handle events now.
 
-### Handle Events
+### Handle Row Events
 
 There were several types of event defined in MySQL binlog protocol. For this client, it only concerned about events related to data modification such as `write`, `update` and  `delete`. All the events are presented as `JsonObject`. 
 
@@ -93,18 +93,25 @@ binlogClient.handler((event) -> {
 
 For a data modification event (write / update / delete) the `JsonObject` will be looks like that:
 
-```Json
+```json
 {
-  "type" : "write", //or update or delete
-  "schema" : "test_db", //database name
-  "table" : "test_table", //table name
-  "row" : { //the row data
+  "type" : "write",
+  "schema" : "test_db",
+  "table" : "test_table",
+  "row" : {
     "id" : 1000
     "name" : "tim"
-    // some other fields
   }
 }
 ```
+
+The row event containing the following values:
+
+* `type` The event type, should be one of `write`, `update`, `delete`
+
+
+
+**Processing DDL**
 
 
 
