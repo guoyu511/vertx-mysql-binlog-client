@@ -107,13 +107,12 @@ For a data modification event (write / update / delete) the `JsonObject` will be
 
 The row event containing the following values:
 
-* `type` The event type, should be one of `write`, `update`, `delete`
+* `type` the event type, should be one of `write`, `update`, `delete`
+* `schema` the database which the data changed in
+* `table` the table name which the row changed in
+* `row` the row data, in `JsonObject`
 
-
-
-**Processing DDL**
-
-
+**Column Mapping**
 
 
 
