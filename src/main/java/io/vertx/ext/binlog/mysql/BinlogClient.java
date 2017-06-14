@@ -23,7 +23,6 @@ public interface BinlogClient extends ReadStream<JsonObject> {
   BinlogClient stop();
 
   BinlogClient stop(Handler<AsyncResult<Void>> stopHandler);
-
   @Override
   BinlogClient exceptionHandler(Handler<Throwable> handler);
 
@@ -39,11 +38,13 @@ public interface BinlogClient extends ReadStream<JsonObject> {
   @Override
   BinlogClient endHandler(Handler<Void> endHandler);
 
+  boolean started();
+
   /**
    * The event bus address where the message sent to.
    *
    * @return event bus address
    */
-  String messageAddress();
+  String address();
 
 }

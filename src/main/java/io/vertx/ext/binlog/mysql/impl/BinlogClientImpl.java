@@ -1,6 +1,7 @@
 package io.vertx.ext.binlog.mysql.impl;
 
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
+import com.github.shyiko.mysql.binlog.event.Event;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -115,9 +116,6 @@ public class BinlogClientImpl implements BinlogClient {
         if (exceptionHandler != null) {
           exceptionHandler.handle(ar.cause());
         }
-        if (endHandler != null) {
-          endHandler.handle(null);
-        }
       }
       startHandler.handle(ar);
     });
@@ -134,7 +132,7 @@ public class BinlogClientImpl implements BinlogClient {
       throw new IllegalStateException("Client is not started.");
     }
     running = false;
-    vertx.executeBlocking((f) -> {
+    vertx.<Void>executeBlocking((f) -> {
       try {
         client.disconnect();
         Runtime.getRuntime().removeShutdownHook(shutdownHook);
@@ -148,7 +146,15 @@ public class BinlogClientImpl implements BinlogClient {
         logger.error("Disconnect failed", e);
         f.fail(e);
       }
-    }, true, stopHandler);
+    }, true, (ar) -> {
+      if (ar.succeeded()) {
+        if (endHandler != null)
+          endHandler.handle(null);
+        stopHandler.handle(ar);
+      } else {
+        stopHandler.handle(ar);
+      }
+    });
     return this;
   }
 
@@ -191,12 +197,17 @@ public class BinlogClientImpl implements BinlogClient {
   }
 
   @Override
-  public String messageAddress() {
+  public boolean started() {
+    return running;
+  }
+
+  @Override
+  public String address() {
     return messageAddress;
   }
 
   //this method will be called on blc thread
-  private void handle(com.github.shyiko.mysql.binlog.event.Event eventSrc) {
+  private void handle(Event eventSrc) {
     if (!running) {
       return;
     }

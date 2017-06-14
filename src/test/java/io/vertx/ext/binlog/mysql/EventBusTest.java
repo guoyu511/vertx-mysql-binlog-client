@@ -19,7 +19,7 @@ public class EventBusTest extends BinlogClientTestBase {
   @Test
   public void testInsert() throws SQLException {
     AtomicInteger counter = new AtomicInteger(0);
-    consumer = vertx.eventBus().consumer(client.messageAddress(), (msg) -> {
+    consumer = vertx.eventBus().consumer(client.address(), (msg) -> {
       if (!"write".equals(msg.headers().get("type"))) {
         return;
       }
@@ -44,7 +44,7 @@ public class EventBusTest extends BinlogClientTestBase {
   public void testDelete() throws SQLException {
     insert();
     AtomicInteger counter = new AtomicInteger(0);
-    consumer = vertx.eventBus().consumer(client.messageAddress(), (msg) -> {
+    consumer = vertx.eventBus().consumer(client.address(), (msg) -> {
       if (!"delete".equals(msg.headers().get("type"))) {
         return;
       }
@@ -69,7 +69,7 @@ public class EventBusTest extends BinlogClientTestBase {
   public void testUpdate() throws SQLException {
     insert();
     AtomicInteger counter = new AtomicInteger(0);
-    consumer = vertx.eventBus().consumer(client.messageAddress(), (msg) -> {
+    consumer = vertx.eventBus().consumer(client.address(), (msg) -> {
       if (!"update".equals(msg.headers().get("type"))) {
         return;
       }

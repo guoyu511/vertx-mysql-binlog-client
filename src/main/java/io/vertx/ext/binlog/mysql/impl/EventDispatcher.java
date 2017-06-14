@@ -1,6 +1,7 @@
 package io.vertx.ext.binlog.mysql.impl;
 
 import com.github.shyiko.mysql.binlog.event.DeleteRowsEventData;
+import com.github.shyiko.mysql.binlog.event.Event;
 import com.github.shyiko.mysql.binlog.event.EventType;
 import com.github.shyiko.mysql.binlog.event.QueryEventData;
 import com.github.shyiko.mysql.binlog.event.RotateEventData;
@@ -23,7 +24,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -68,6 +68,7 @@ class EventDispatcher {
     this.publishMessage = options.isPublishMessage();
     this.sendMessage = options.isSendMessage();
     this.eventBus = vertx.eventBus();
+    //use a single connection to query information_schema
     sqlClient = MySQLClient.createNonShared(vertx,
       new JsonObject()
         .put("host", options.getHost())
@@ -79,10 +80,10 @@ class EventDispatcher {
     );
   }
 
-  void dispatch(com.github.shyiko.mysql.binlog.event.Event evt) {
+  void dispatch(Event evt) {
     Object data = evt.getData();
     if (RotateEventData.class.isInstance(data)) {
-      handleRotateEvent((RotateEventData)data);
+      handleRotateEvent((RotateEventData) data);
     } else if (TableMapEventData.class.isInstance(data)) {
       handleTableMapEvent((TableMapEventData) data);
     } else if (EventType.isWrite(evt.getHeader().getEventType())) {
@@ -120,9 +121,10 @@ class EventDispatcher {
     if (lastTableMap == null) {
       throw new IllegalStateException("Missing table map event");
     }
-    evt.getRows().forEach(row ->
-      handleRowEvent(lastTableMap.getTable(), "write", Arrays.asList(row))
-    );
+    evt.getRows()
+      .forEach(row ->
+        handleRowEvent(lastTableMap.getTable(), "write", Arrays.asList(row))
+      );
     lastTableMap = null;
   }
 
@@ -130,9 +132,10 @@ class EventDispatcher {
     if (lastTableMap == null) {
       throw new IllegalStateException("Missing table map event");
     }
-    evt.getRows().forEach(entry ->
-      handleRowEvent(lastTableMap.getTable(), "update", Arrays.asList(entry.getValue()))
-    );
+    evt.getRows()
+      .forEach(entry ->
+        handleRowEvent(lastTableMap.getTable(), "update", Arrays.asList(entry.getValue()))
+      );
     lastTableMap = null;
   }
 
@@ -140,14 +143,18 @@ class EventDispatcher {
     if (lastTableMap == null) {
       throw new IllegalStateException("Missing table map event");
     }
-    evt.getRows().forEach(row ->
-      handleRowEvent(lastTableMap.getTable(), "delete", Arrays.asList(row))
-    );
+    evt.getRows()
+      .forEach(row ->
+        handleRowEvent(lastTableMap.getTable(), "delete", Arrays.asList(row))
+      );
     lastTableMap = null;
   }
 
   private void handleQueryEvent(QueryEventData data) {
-    String sql = data.getSql().toUpperCase().trim();
+    String sql = data
+      .getSql()
+      .toUpperCase()
+      .trim();
     if (sql.startsWith("CREATE TABLE") ||
       sql.startsWith("DROP TABLE") ||
       sql.startsWith("ALTER TABLE")) {
@@ -164,11 +171,16 @@ class EventDispatcher {
         return;
       }
       if (columns.size() != fields.size()) {
-        notifyException(new IllegalStateException("Columns not matched, expect " + columns.size() + " got " + fields.size()));
+        notifyException(new IllegalStateException("Columns not matched, expect " + columns
+          .size() + " got " + fields.size()));
         return;
       }
-      Map<String, Object> row = IntStream.range(0, columns.size()).boxed()
-        .collect(HashMap::new, (map, i) -> map.put(columns.get(i), fields.get(i)), HashMap::putAll);
+      Map<String, Object> row = IntStream
+        .range(0, columns.size())
+        .boxed()
+        .collect(HashMap::new,
+          (map, i) -> map.put(columns.get(i), fields.get(i)),
+          HashMap::putAll);
       notify(new JsonObject()
         .put("table", table)
         .put("type", type)
@@ -185,8 +197,7 @@ class EventDispatcher {
           return Future.succeededFuture();
         }
         return Future.<SQLConnection>future((f) ->
-          sqlClient.getConnection(f
-          ))
+          sqlClient.getConnection(f))
           .compose((conn ->
             Future.<ResultSet>future((f) ->
               conn.query("SELECT COLUMN_NAME AS name from COLUMNS " +
@@ -194,19 +205,21 @@ class EventDispatcher {
                 "AND TABLE_NAME = '" + table + "' " +
                 "ORDER BY ORDINAL_POSITION", f)
             )
-              .map(rs -> {
-                conn.close();
-                if (rs.getNumRows() == 0) {
-                  return null;
-                }
-                return rs.getRows().stream()
-                  .map(json -> json.getString("name"))
-                  .collect(Collectors.toList());
-              })
-              .otherwise(e -> {
-                conn.close();
+            .map(rs -> {
+              conn.close();
+              if (rs.getNumRows() == 0) {
                 return null;
-              })
+              }
+              return rs
+                .getRows()
+                .stream()
+                .map(json -> json.getString("name"))
+                .collect(Collectors.toList());
+            })
+            .otherwise(e -> {
+              conn.close();
+              return null;
+            })
           ))
           .map(columns -> {
             if (logger.isDebugEnabled()) {

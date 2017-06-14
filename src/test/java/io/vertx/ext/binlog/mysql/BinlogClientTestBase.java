@@ -78,10 +78,12 @@ public class BinlogClientTestBase extends VertxTestBase {
   @After
   public void after() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
-    client.stop((ignore) ->
-      latch.countDown()
-    );
-    awaitLatch(latch);
+    if (client.started()) {
+      client.stop((ignore) ->
+        latch.countDown()
+      );
+      awaitLatch(latch);
+    }
     delete();
   }
 
