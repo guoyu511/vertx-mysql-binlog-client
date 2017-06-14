@@ -49,7 +49,7 @@ public class BinlogClientTestBase extends VertxTestBase {
     }
     rows = IntStream
       .iterate(1, i -> i + 1)
-      .limit(200)
+      .limit(100)
       .boxed()
       .map(i -> new AbstractMap.SimpleEntry<>(i, UUID.randomUUID().toString()))
       .collect(Collectors.toList());
