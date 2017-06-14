@@ -16,9 +16,27 @@ Get the latest JAR(s) from here. Alternatively you can include following Maven d
 </dependency>
 ```
 
-## Getting Started
+### Configure your MySQL master
 
-In order to connect to MySQL as a slave node, you need a `BinlogClient` instance first.
+Be sure that the MySQL master is enable the binlog file and the binlog is in **ROW** format, otherwise client cannot receive any row events.
+
+To enable the binary log, start the server with the [--log-bin=base_name](https://dev.mysql.com/doc/refman/5.7/en/replication-options-binary-log.html#option_mysqld_log-bin) option. For example:
+
+```
+mysqld --log-bin=mysql-bin --binlog-format=ROW
+```
+
+To specify the format globally for all clients, set the global value of the [binlog_format](https://dev.mysql.com/doc/refman/5.7/en/replication-options-binary-log.html#sysvar_binlog_format) system variable:
+
+```
+SET GLOBAL binlog_format = 'ROW';
+```
+
+
+## Usage
+
+
+In order to connect to MySQL as a slave, you need a `BinlogClient` instance first.
 
 You can create a client specifying a `BinlogClientOptions`:
 
@@ -38,6 +56,28 @@ The `BinlogClientOptions` containing the following values:
 * `keepAlive` enable "keep alive" feature on this client. Default is true
 * `keepAliveInterval` "keep alive" interval in milliseconds. Default is 1000
 * `heartbeatInterval` heartbeatInterval interval in milliseconds. Default is 0 means no heartbeat
+
+You can then connect to the MySQL master with the method `start`. It happens asynchronously and the client may not be connected until some time after the call has returned.:
+
+```java
+binlogClient.start();
+```
+
+You can aslo supplying a handler which will be called after the connection established(or failed).
+
+```
+binlogClient.start((ar) -> {
+  ar.succeeded() // true if connection established
+});
+```
+
+### Handle row events
+
+
+### Handle rotate events
+
+
+### Using as ReadStream
 
 
 ## Running the tests
