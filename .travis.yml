@@ -2,7 +2,7 @@ language: java
 dist: trusty
 services:
   - mysql
-sudo: false
+sudo: true
 addons:
   apt:
     packages:
