@@ -1,7 +1,6 @@
 package io.vertx.ext.binlog.mysql.impl;
 
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
-import com.github.shyiko.mysql.binlog.event.Event;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -13,11 +12,11 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.binlog.mysql.BinlogClient;
 import io.vertx.ext.binlog.mysql.BinlogClientOptions;
-import io.vertx.ext.binlog.mysql.RowEvent;
 
 /**
  * @author <a href="mailto:guoyu.511@gmail.com">Guo Yu</a>
@@ -159,7 +158,7 @@ public class BinlogClientImpl implements BinlogClient {
     return this;
   }
 
-  public BinlogClientImpl handler(Handler<RowEvent> handler) {
+  public BinlogClientImpl handler(Handler<JsonObject> handler) {
     this.dispatcher.handler(handler);
     return this;
   }
@@ -197,7 +196,7 @@ public class BinlogClientImpl implements BinlogClient {
   }
 
   //this method will be called on blc thread
-  private void handle(Event eventSrc) {
+  private void handle(com.github.shyiko.mysql.binlog.event.Event eventSrc) {
     if (!running) {
       return;
     }

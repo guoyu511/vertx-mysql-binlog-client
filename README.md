@@ -16,4 +16,12 @@ You can run tests with a specified MySQL instance:
 % mvn test -Dbinlog.host=[host] -Dbinlog.port=[port] -Dbinlog.user=[user] -Dbinlog.password=[password] -Dbinlog.schema=[schema]
 ```
 
-Be sure that the user has enough privileges of the given schema, at least `CREATE`, `DROP`, `SELECT`, `INSERT`, `UPDATE` and `REPLICATION CLIENT`.
+The user must has enough privileges of the given schema, at least `CREATE`, `DROP`, `SELECT`, `INSERT`, `UPDATE` and `REPLICATION CLIENT`.
+
+**Be sure that the binlog format is `ROW` otherwise client cannot receive any row events.**
+
+To set binlog format using:
+
+```
+SET GLOBAL binlog_format = 'ROW';
+```

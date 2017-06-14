@@ -17,12 +17,12 @@ public class BinlogClientTest extends BinlogClientTestBase {
   public void testInsert() throws SQLException {
     AtomicInteger counter = new AtomicInteger(0);
     client.handler((event) -> {
-      if (!"write".equals(event.type())) {
+      if (!"write".equals(event.getString("type"))) {
         return;
       }
-      assertEquals(config().getString("schema"), event.schema());
-      assertEquals("binlog_client_test", event.table());
-      JsonObject json = event.body();
+      assertEquals(config().getString("schema"), event.getString("schema"));
+      assertEquals("binlog_client_test", event.getString("table"));
+      JsonObject json = event.getJsonObject("row");
       Integer id = json.getInteger("id");
       String name = json.getString("name");
       Map.Entry<Integer, String> expectedRow = rows().get(counter.getAndIncrement());
@@ -41,13 +41,13 @@ public class BinlogClientTest extends BinlogClientTestBase {
     insert();
     AtomicInteger counter = new AtomicInteger(0);
     client.handler((event) -> {
-      if (!"delete".equals(event.type())) {
+      if (!"delete".equals(event.getString("type"))) {
         return;
       }
-      assertEquals(config().getString("schema"), event.schema());
-      assertEquals("binlog_client_test", event.table());
-      assertEquals("delete", event.type());
-      JsonObject json = event.body();
+      assertEquals(config().getString("schema"), event.getString("schema"));
+      assertEquals("binlog_client_test", event.getString("table"));
+      assertEquals("delete", event.getString("type"));
+      JsonObject json = event.getJsonObject("row");
       Integer id = json.getInteger("id");
       String name = json.getString("name");
       Map.Entry<Integer, String> expectedRow = rows().get(counter.getAndIncrement());
@@ -66,13 +66,13 @@ public class BinlogClientTest extends BinlogClientTestBase {
     insert();
     AtomicInteger counter = new AtomicInteger(0);
     client.handler((event) -> {
-      if (!"update".equals(event.type())) {
+      if (!"update".equals(event.getString("type"))) {
         return;
       }
-      assertEquals(config().getString("schema"), event.schema());
-      assertEquals("binlog_client_test", event.table());
-      assertEquals("update", event.type());
-      JsonObject json = event.body();
+      assertEquals(config().getString("schema"), event.getString("schema"));
+      assertEquals("binlog_client_test", event.getString("table"));
+      assertEquals("update", event.getString("type"));
+      JsonObject json = event.getJsonObject("row");
       Integer id = json.getInteger("id");
       String name = json.getString("name");
       Map.Entry<Integer, String> expectedRow = rows().get(counter.getAndIncrement());

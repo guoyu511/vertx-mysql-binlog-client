@@ -23,11 +23,12 @@ public class EventBusTest extends BinlogClientTestBase {
       if (!"write".equals(msg.headers().get("type"))) {
         return;
       }
+      JsonObject body = msg.body();
       assertEquals(config().getString("schema"), msg.headers().get("schema"));
-      assertEquals("binlog_client_test", msg.headers().get("table"));
-      JsonObject json = msg.body();
-      Integer id = json.getInteger("id");
-      String name = json.getString("name");
+      assertEquals("binlog_client_test", body.getString("table"));
+      JsonObject row = body.getJsonObject("row");
+      Integer id = row.getInteger("id");
+      String name = row.getString("name");
       Map.Entry<Integer, String> expectedRow = rows().get(counter.getAndIncrement());
       assertEquals(expectedRow.getKey(), id);
       assertEquals(expectedRow.getValue(), name);
@@ -47,11 +48,12 @@ public class EventBusTest extends BinlogClientTestBase {
       if (!"delete".equals(msg.headers().get("type"))) {
         return;
       }
+      JsonObject body = msg.body();
       assertEquals(config().getString("schema"), msg.headers().get("schema"));
-      assertEquals("binlog_client_test", msg.headers().get("table"));
-      JsonObject json = msg.body();
-      Integer id = json.getInteger("id");
-      String name = json.getString("name");
+      assertEquals("binlog_client_test", body.getString("table"));
+      JsonObject row = body.getJsonObject("row");
+      Integer id = row.getInteger("id");
+      String name = row.getString("name");
       Map.Entry<Integer, String> expectedRow = rows().get(counter.getAndIncrement());
       assertEquals(expectedRow.getKey(), id);
       assertEquals(expectedRow.getValue(), name);
@@ -71,11 +73,12 @@ public class EventBusTest extends BinlogClientTestBase {
       if (!"update".equals(msg.headers().get("type"))) {
         return;
       }
+      JsonObject body = msg.body();
       assertEquals(config().getString("schema"), msg.headers().get("schema"));
-      assertEquals("binlog_client_test", msg.headers().get("table"));
-      JsonObject json = msg.body();
-      Integer id = json.getInteger("id");
-      String name = json.getString("name");
+      assertEquals("binlog_client_test", body.getString("table"));
+      JsonObject row = body.getJsonObject("row");
+      Integer id = row.getInteger("id");
+      String name = row.getString("name");
       Map.Entry<Integer, String> expectedRow = rows().get(counter.getAndIncrement());
       assertEquals(expectedRow.getKey(), id);
       assertEquals(expectedRow.getValue() + "_updated", name);

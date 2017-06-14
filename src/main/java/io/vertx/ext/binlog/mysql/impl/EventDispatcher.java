@@ -1,9 +1,9 @@
 package io.vertx.ext.binlog.mysql.impl;
 
 import com.github.shyiko.mysql.binlog.event.DeleteRowsEventData;
-import com.github.shyiko.mysql.binlog.event.Event;
 import com.github.shyiko.mysql.binlog.event.EventType;
 import com.github.shyiko.mysql.binlog.event.QueryEventData;
+import com.github.shyiko.mysql.binlog.event.RotateEventData;
 import com.github.shyiko.mysql.binlog.event.TableMapEventData;
 import com.github.shyiko.mysql.binlog.event.UpdateRowsEventData;
 import com.github.shyiko.mysql.binlog.event.WriteRowsEventData;
@@ -23,13 +23,13 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.asyncsql.AsyncSQLClient;
 import io.vertx.ext.asyncsql.MySQLClient;
 import io.vertx.ext.binlog.mysql.BinlogClientOptions;
-import io.vertx.ext.binlog.mysql.RowEvent;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLConnection;
 
@@ -48,7 +48,7 @@ class EventDispatcher {
 
   private EventBus eventBus;
 
-  private Handler<RowEvent> handler;
+  private Handler<JsonObject> handler;
 
   private TableMapEventData lastTableMap;
 
@@ -79,9 +79,11 @@ class EventDispatcher {
     );
   }
 
-  void dispatch(Event evt) {
+  void dispatch(com.github.shyiko.mysql.binlog.event.Event evt) {
     Object data = evt.getData();
-    if (TableMapEventData.class.isInstance(data)) {
+    if (RotateEventData.class.isInstance(data)) {
+      handleRotateEvent((RotateEventData)data);
+    } else if (TableMapEventData.class.isInstance(data)) {
       handleTableMapEvent((TableMapEventData) data);
     } else if (EventType.isWrite(evt.getHeader().getEventType())) {
       handleWriteEvent((WriteRowsEventData) data);
@@ -94,12 +96,20 @@ class EventDispatcher {
     }
   }
 
-  void handler(Handler<RowEvent> handler) {
+  void handler(Handler<JsonObject> handler) {
     this.handler = handler;
   }
 
   void exceptionHandler(Handler<Throwable> exceptionHandler) {
     this.exceptionHandler = exceptionHandler;
+  }
+
+  private void handleRotateEvent(RotateEventData data) {
+    notify(new JsonObject()
+      .put("type", "rotate")
+      .put("filename", data.getBinlogFilename())
+      .put("position", data.getBinlogPosition())
+    );
   }
 
   private void handleTableMapEvent(TableMapEventData data) {
@@ -159,11 +169,15 @@ class EventDispatcher {
       }
       Map<String, Object> row = IntStream.range(0, columns.size()).boxed()
         .collect(HashMap::new, (map, i) -> map.put(columns.get(i), fields.get(i)), HashMap::putAll);
-      notify(new RowEventImpl(schema, table, type, new JsonObject(row)));
+      notify(new JsonObject()
+        .put("table", table)
+        .put("type", type)
+        .put("row", new JsonObject(row)));
     });
   }
 
   private void getColumns(String table, Handler<List<String>> handler) {
+    //chain the future to make sure the following queries is in order
     lock = lock
       .compose((res) -> {
         if (tableColumns.containsKey(table)) {
@@ -216,28 +230,26 @@ class EventDispatcher {
       });
   }
 
-  private void notify(RowEventImpl event) {
+  private void notify(JsonObject event) {
+    event.put("schema", schema);
+    if (handler != null) {
+      handler.handle(event);
+    }
     if (publishMessage) {
       eventBus.publish(
-        messageAddress,
-        event.body(),
+        messageAddress, event,
         new DeliveryOptions()
-          .addHeader("schema", event.schema())
-          .addHeader("table", event.table())
-          .addHeader("type", event.type()));
+          .addHeader("schema", schema)
+          .addHeader("type", event.getString("type"))
+      );
     } else if (sendMessage) {
       eventBus.send(
-        messageAddress,
-        event.body(),
+        messageAddress, event,
         new DeliveryOptions()
-          .addHeader("schema", event.schema())
-          .addHeader("table", event.table())
-          .addHeader("type", event.type()));
+          .addHeader("schema", schema)
+          .addHeader("type", event.getString("type"))
+      );
     }
-    if (handler == null) {
-      return;
-    }
-    handler.handle(event);
   }
 
   private void notifyException(Throwable t) {

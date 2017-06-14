@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 
 import io.vertx.core.Handler;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.WriteStream;
 
@@ -22,13 +23,13 @@ public class ReadStreamTest extends BinlogClientTestBase {
     await();
   }
 
-  private class TestWriteStream implements WriteStream<RowEvent> {
+  private class TestWriteStream implements WriteStream<JsonObject> {
 
     private int counter;
 
     private int maxSize = 10; //limited buffer size
 
-    private LinkedList<RowEvent> queue = new LinkedList<>();
+    private LinkedList<JsonObject> queue = new LinkedList<>();
 
     private Handler<Void> drainHandler;
 
@@ -61,12 +62,12 @@ public class ReadStreamTest extends BinlogClientTestBase {
     }
 
     @Override
-    public WriteStream<RowEvent> exceptionHandler(Handler<Throwable> handler) {
+    public WriteStream<JsonObject> exceptionHandler(Handler<Throwable> handler) {
       return this;
     }
 
     @Override
-    public synchronized WriteStream<RowEvent> write(RowEvent data) {
+    public synchronized WriteStream<JsonObject> write(JsonObject data) {
       queue.push(data);
       return this;
     }
@@ -77,7 +78,7 @@ public class ReadStreamTest extends BinlogClientTestBase {
     }
 
     @Override
-    public WriteStream<RowEvent> setWriteQueueMaxSize(int maxSize) {
+    public WriteStream<JsonObject> setWriteQueueMaxSize(int maxSize) {
       this.maxSize = maxSize;
       return this;
     }
@@ -88,7 +89,7 @@ public class ReadStreamTest extends BinlogClientTestBase {
     }
 
     @Override
-    public WriteStream<RowEvent> drainHandler(Handler<Void> drainHandler) {
+    public WriteStream<JsonObject> drainHandler(Handler<Void> drainHandler) {
       this.drainHandler = drainHandler;
       return this;
     }
