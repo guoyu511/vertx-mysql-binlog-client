@@ -13,7 +13,7 @@ import io.vertx.core.json.JsonObject;
 public class StartStopTest extends BinlogClientTestBase {
 
   @Test
-  public void stopAndStartTest() {
+  public void testStartAndStop() {
     List<JsonObject> eventReceived = new ArrayList<>();
     client.handler(eventReceived::add);
     client.stop();

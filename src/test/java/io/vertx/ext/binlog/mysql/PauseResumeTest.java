@@ -13,7 +13,7 @@ import io.vertx.core.json.JsonObject;
 public class PauseResumeTest extends BinlogClientTestBase {
 
   @Test
-  public void stopAndStartTest() {
+  public void testPauseAndResume() {
     List<JsonObject> eventReceived = new ArrayList<>();
     client.handler(eventReceived::add);
     client.pause();
