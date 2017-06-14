@@ -2,7 +2,9 @@
 
 A Vert.x client allowing applications tapping into MySQL replication stream.
 
-It uses [MySQL Binary Log connector](https://github.com/shyiko/mysql-binlog-connector-java) to interact with the MySQL which implemented the MySQL binlog protocol.
+It uses [MySQL Binary Log connector](https://github.com/shyiko/mysql-binlog-connector-java) to interact with the MySQL which implemented the MySQL binlog protocol by java.
+
+## How to use
 
 ### Configure your MySQL master
 
@@ -73,13 +75,50 @@ binlogClient.start((ar) -> {
 });
 ```
 
-### Handle Row events
+After connected to the MySQL master as a slave, the client can handle events now.
+
+### Handle Events
+
+There were several types of event defined in MySQL binlog protocol. For this client, it only concerned about events related to data modification such as `write`, `update` and  `delete`. All the events are presented as `JsonObject`. 
+
+You can set a handler to the client to handle those types of events.
+
+```java
+binlogClient.handler((event) -> {
+  String type = event.getString("type");
+});
+```
+
+For a data modification event (write / update / delete) the `JsonObject` will be looks like that:
+
+```Json
+{
+  "type" : "write", //or update or delete
+  "schema" : "test_db", //database name
+  "table" : "test_table", //table name
+  "row" : { //the row data
+    "id" : 1000
+    "name" : "tim"
+    // some other fields
+  }
+}
+```
 
 
-### Handle Rotate events
+
+
 
 
 ### Using as ReadStream
+
+
+
+
+
+### Binlog File and position
+
+
+
 
 
 ## Running the Tests

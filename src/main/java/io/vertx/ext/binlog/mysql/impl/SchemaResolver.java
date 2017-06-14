@@ -45,7 +45,7 @@ public class SchemaResolver {
   }
 
   void getColumns(String schema, String table, Handler<List<String>> handler) {
-    //chain the future to make sure the following queries is in order
+    //chain the future to make sure the following queries is queued
     lock = lock
       .compose((res) -> {
         if (tableColumns.containsKey(table)) {
