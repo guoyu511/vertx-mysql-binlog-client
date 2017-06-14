@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.LinkedList;
+import java.util.concurrent.CountDownLatch;
 
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
@@ -41,7 +42,7 @@ public class ReadStreamTest extends BinlogClientTestBase {
          */
         while(true) {
           try {
-            Thread.sleep(50);
+            Thread.sleep(20);
           } catch (InterruptedException e) {
             e.printStackTrace();
           }
