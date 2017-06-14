@@ -1,0 +1,6 @@
+language: java
+script: mvn -DargLine="-Dbinlog.username=travis -Dbinlog.host=127.0.0.1 -Dbinlog.port=3306 -Dbinlog.schema=binlog_test" clean test-compile test
+before_install:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS binlog_test;'
+services:
+  - mysql
