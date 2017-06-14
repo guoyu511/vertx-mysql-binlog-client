@@ -10,13 +10,13 @@ import io.vertx.core.json.JsonObject;
 /**
  * @author <a href="mailto:guoyu.511@gmail.com">Guo Yu</a>
  */
-public class StartStopTest extends BinlogClientTestBase {
+public class PauseResumeTest extends BinlogClientTestBase {
 
   @Test
   public void stopAndStartTest() {
     List<JsonObject> eventReceived = new ArrayList<>();
     client.handler(eventReceived::add);
-    client.stop();
+    client.pause();
     insert();
     vertx.setTimer(5000, (v) -> {
       assertEquals(eventReceived.size(), 0);
@@ -28,7 +28,7 @@ public class StartStopTest extends BinlogClientTestBase {
           testComplete();
         }
       });
-      client.start();
+      client.resume();
     });
     await();
   }
