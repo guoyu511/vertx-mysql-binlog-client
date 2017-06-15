@@ -44,9 +44,6 @@ public class BinlogClientTestBase extends VertxTestBase {
       config().getString("user"),
       config().getString("password")
     );
-    for (String sql : SQL) {
-      conn.createStatement().execute(sql);
-    }
     rows = IntStream
       .iterate(1, i -> i + 1)
       .limit(100)
@@ -58,6 +55,9 @@ public class BinlogClientTestBase extends VertxTestBase {
   @Before
   public void setUp() throws Exception {
     super.setUp();
+    for (String sql : SQL) {
+      conn.createStatement().execute(sql);
+    }
     client = BinlogClient.create(vertx,
       new BinlogClientOptions()
         .setUsername(config().getString("user"))
