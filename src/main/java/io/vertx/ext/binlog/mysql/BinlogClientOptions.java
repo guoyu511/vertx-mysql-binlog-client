@@ -21,9 +21,9 @@ public class BinlogClientOptions {
 
   private long connectTimeout = TimeUnit.SECONDS.toMillis(30);
 
-  private String binlogFilename;
+  private String filename;
 
-  private long binlogPosition = -1;
+  private long position = -1;
 
   private boolean keepAlive = true;
 
@@ -76,21 +76,21 @@ public class BinlogClientOptions {
     return this;
   }
 
-  public long getBinlogPosition() {
-    return binlogPosition;
+  public long getPosition() {
+    return position;
   }
 
-  public BinlogClientOptions setBinlogPosition(long binlogPosition) {
-    this.binlogPosition = binlogPosition;
+  public BinlogClientOptions setPosition(long position) {
+    this.position = position;
     return this;
   }
 
-  public String getBinlogFilename() {
-    return binlogFilename;
+  public String getFilename() {
+    return filename;
   }
 
-  public BinlogClientOptions setBinlogFilename(String binlogFilename) {
-    this.binlogFilename = binlogFilename;
+  public BinlogClientOptions setFilename(String filename) {
+    this.filename = filename;
     return this;
   }
 

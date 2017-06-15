@@ -93,11 +93,11 @@ public class BinlogClientImpl implements BinlogClient {
         options.getPassword()
       ).orElse("")
     );
-    if (options.getBinlogFilename() != null) {
-      client.setBinlogFilename(options.getBinlogFilename());
+    if (options.getFilename() != null) {
+      client.setBinlogFilename(options.getFilename());
     }
-    if (options.getBinlogPosition() != -1) {
-      client.setBinlogPosition(options.getBinlogPosition());
+    if (options.getPosition() != -1) {
+      client.setBinlogPosition(options.getPosition());
     }
     client.setHeartbeatInterval(options.getHeartbeatInterval());
     client.setKeepAlive(options.isKeepAlive());
@@ -233,6 +233,16 @@ public class BinlogClientImpl implements BinlogClient {
   @Override
   public String address() {
     return messageAddress;
+  }
+
+  @Override
+  public String filename() {
+    return client.getBinlogFilename();
+  }
+
+  @Override
+  public long position() {
+    return client.getBinlogPosition();
   }
 
   public BinaryLogClient getClient() {

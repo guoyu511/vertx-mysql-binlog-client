@@ -59,9 +59,7 @@ class EventDispatcher {
 
   void dispatch(Event evt) {
     Object data = evt.getData();
-    if (RotateEventData.class.isInstance(data)) {
-      handleRotateEvent((RotateEventData) data);
-    } else if (TableMapEventData.class.isInstance(data)) {
+    if (TableMapEventData.class.isInstance(data)) {
       handleTableMapEvent((TableMapEventData) data);
     } else if (EventType.isWrite(evt.getHeader().getEventType())) {
       handleWriteEvent((WriteRowsEventData) data);
@@ -80,14 +78,6 @@ class EventDispatcher {
 
   void exceptionHandler(Handler<Throwable> exceptionHandler) {
     this.exceptionHandler = exceptionHandler;
-  }
-
-  private void handleRotateEvent(RotateEventData data) {
-    notify(new JsonObject()
-      .put("type", "rotate")
-      .put("filename", data.getBinlogFilename())
-      .put("position", data.getBinlogPosition())
-    );
   }
 
   private void handleTableMapEvent(TableMapEventData data) {

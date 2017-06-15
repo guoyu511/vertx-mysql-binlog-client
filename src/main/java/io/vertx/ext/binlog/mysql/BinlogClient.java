@@ -48,4 +48,8 @@ public interface BinlogClient extends ReadStream<JsonObject> {
    */
   String address();
 
+  String filename();
+
+  long position();
+
 }
