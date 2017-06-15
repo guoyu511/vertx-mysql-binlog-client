@@ -13,7 +13,7 @@ public class BinlogClientOptions {
 
   private String username = "root";
 
-  private String password = "";
+  private String password;
 
   private String schema;
 
