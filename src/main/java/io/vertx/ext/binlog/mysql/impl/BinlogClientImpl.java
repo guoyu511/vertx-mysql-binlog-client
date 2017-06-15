@@ -24,11 +24,11 @@ import io.vertx.ext.binlog.mysql.BinlogClientOptions;
  */
 public class BinlogClientImpl implements BinlogClient {
 
+  Vertx vertx;
+
+  BinaryLogClient client;
+
   private Logger logger = LoggerFactory.getLogger(BinlogClientImpl.class);
-
-  private Vertx vertx;
-
-  private BinaryLogClient client;
 
   private Handler<Void> endHandler;
 
@@ -207,6 +207,10 @@ public class BinlogClientImpl implements BinlogClient {
   @Override
   public String address() {
     return messageAddress;
+  }
+
+  public BinaryLogClient getClinet() {
+    return client;
   }
 
   //this method will be called on blc thread

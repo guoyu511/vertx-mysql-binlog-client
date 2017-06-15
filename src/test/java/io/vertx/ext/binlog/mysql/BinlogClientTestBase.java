@@ -1,6 +1,8 @@
 package io.vertx.ext.binlog.mysql;
 
 
+import com.github.shyiko.mysql.binlog.BinaryLogClient;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -35,7 +37,7 @@ public class BinlogClientTestBase extends VertxTestBase {
     "CREATE TABLE `binlog_client_test` (`id` int(11) NOT NULL AUTO_INCREMENT,`name` varchar(100) NOT NULL,PRIMARY KEY (`id`));"
   };
 
-  protected BinlogClient client;
+  BinlogClient client;
 
   @BeforeClass
   public static void init() throws Exception {
@@ -46,13 +48,13 @@ public class BinlogClientTestBase extends VertxTestBase {
     );
     rows = IntStream
       .iterate(1, i -> i + 1)
-      .limit(100)
+      .limit(Integer.parseInt(System.getProperty("binlog.rows", "1000")))
       .boxed()
       .map(i -> new AbstractMap.SimpleEntry<>(i, UUID.randomUUID().toString()))
       .collect(Collectors.toList());
   }
 
-  @Before
+  @Override
   public void setUp() throws Exception {
     super.setUp();
     for (String sql : SQL) {
@@ -75,7 +77,7 @@ public class BinlogClientTestBase extends VertxTestBase {
     awaitLatch(latch);
   }
 
-  @After
+  @Override
   public void after() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
     if (client.started()) {

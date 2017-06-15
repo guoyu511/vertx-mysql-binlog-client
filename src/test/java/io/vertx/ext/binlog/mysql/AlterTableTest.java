@@ -1,5 +1,6 @@
 package io.vertx.ext.binlog.mysql;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.UUID;
@@ -12,6 +13,7 @@ import io.vertx.core.json.JsonObject;
 public class AlterTableTest extends BinlogClientTestBase {
 
   @Test
+  @Ignore
   public void testAddColumn() {
     String extraValue = UUID.randomUUID().toString();
     String randomName = UUID.randomUUID().toString();
