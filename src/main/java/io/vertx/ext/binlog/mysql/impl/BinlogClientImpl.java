@@ -4,6 +4,7 @@ import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import com.github.shyiko.mysql.binlog.event.Event;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -73,9 +74,10 @@ public class BinlogClientImpl implements BinlogClient {
     dispatcher = new EventDispatcher(vertx, options, messageAddress);
     client = new BinaryLogClient(
       host, port,
-      options.getSchema(),
       options.getUsername(),
-      options.getPassword()
+      Optional.ofNullable(
+        options.getPassword()
+      ).orElse("")
     );
     if (options.getBinlogFilename() != null) {
       client.setBinlogFilename(options.getBinlogFilename());

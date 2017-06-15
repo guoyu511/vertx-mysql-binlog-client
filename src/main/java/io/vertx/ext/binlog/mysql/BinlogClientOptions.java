@@ -15,8 +15,6 @@ public class BinlogClientOptions {
 
   private String password;
 
-  private String schema;
-
   private boolean publishMessage;
 
   private boolean sendMessage;
@@ -57,15 +55,6 @@ public class BinlogClientOptions {
 
   public BinlogClientOptions setHeartbeatInterval(long heartbeatInterval) {
     this.heartbeatInterval = heartbeatInterval;
-    return this;
-  }
-
-  public String getSchema() {
-    return schema;
-  }
-
-  public BinlogClientOptions setSchema(String schema) {
-    this.schema = schema;
     return this;
   }
 

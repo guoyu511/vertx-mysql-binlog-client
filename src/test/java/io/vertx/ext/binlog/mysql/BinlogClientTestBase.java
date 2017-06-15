@@ -66,7 +66,6 @@ public class BinlogClientTestBase extends VertxTestBase {
         .setPassword(config().getString("password"))
         .setHost(config().getString("host"))
         .setPort(config().getInteger("port"))
-        .setSchema(config().getString("schema"))
         .setSendMessage(true)
         .setHeartbeatInterval(5000)
     );
@@ -103,7 +102,7 @@ public class BinlogClientTestBase extends VertxTestBase {
 
   void insert() {
     rows.forEach(e ->
-      executeSql("INSERT INTO `binlog_client_test`  (id, name) " +
+      executeSql("INSERT INTO `binlog_client_test` (id, name) " +
         " VALUES (" + e.getKey() + ", '" + e.getValue() + "');")
     );
   }

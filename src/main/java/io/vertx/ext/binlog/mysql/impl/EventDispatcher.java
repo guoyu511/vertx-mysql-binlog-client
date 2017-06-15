@@ -36,8 +36,6 @@ import io.vertx.ext.sql.SQLConnection;
  */
 class EventDispatcher {
 
-  private String schema;
-
   private String messageAddress;
 
   private boolean publishMessage;
@@ -58,7 +56,6 @@ class EventDispatcher {
 
   EventDispatcher(Vertx vertx, BinlogClientOptions options, String messageAddress) {
     this.messageAddress = messageAddress;
-    this.schema = options.getSchema();
     this.publishMessage = options.isPublishMessage();
     this.sendMessage = options.isSendMessage();
     this.eventBus = vertx.eventBus();
@@ -170,6 +167,7 @@ class EventDispatcher {
           (map, i) -> map.put(columns.get(i), fields.get(i)),
           HashMap::putAll);
       notify(new JsonObject()
+        .put("schema", schema)
         .put("table", table)
         .put("type", type)
         .put("row", new JsonObject(row)));
@@ -177,7 +175,6 @@ class EventDispatcher {
   }
 
   private void notify(JsonObject event) {
-    event.put("schema", schema);
     if (handler != null) {
       handler.handle(event);
     }
@@ -185,14 +182,12 @@ class EventDispatcher {
       eventBus.publish(
         messageAddress, event,
         new DeliveryOptions()
-          .addHeader("schema", schema)
           .addHeader("type", event.getString("type"))
       );
     } else if (sendMessage) {
       eventBus.send(
         messageAddress, event,
         new DeliveryOptions()
-          .addHeader("schema", schema)
           .addHeader("type", event.getString("type"))
       );
     }
