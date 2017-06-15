@@ -92,7 +92,7 @@ public class BinlogClientTestBase extends VertxTestBase {
   static JsonObject config() {
     JsonObject config = new JsonObject()
       .put("user", System.getProperty("binlog.user", "root"))
-      .put("password", System.getProperty("binlog.password", ""))
+      .put("password", System.getProperty("binlog.password"))
       .put("host", System.getProperty("binlog.host", "localhost"))
       .put("port", parseInt(System.getProperty("binlog.port", "3306")))
       .put("schema", System.getProperty("binlog.schema"));
