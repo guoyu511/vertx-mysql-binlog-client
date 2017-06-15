@@ -20,9 +20,10 @@ public class PauseResumeTest extends BinlogClientTestBase {
     insert();
     vertx.setTimer(5000, (v) -> {
       assertEquals(eventReceived.size(), 0);
-      client.handler((evt) -> {
-        if ("write".equals(evt.getString("type"))) {
-          eventReceived.add(evt);
+      client.handler((event) -> {
+        if ("write".equals(event.getString("type"))) {
+          logger.info(event.toString());
+          eventReceived.add(event);
         }
         if (eventReceived.size() == rows().size()) {
           testComplete();

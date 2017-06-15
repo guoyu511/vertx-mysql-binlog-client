@@ -19,7 +19,7 @@ public class BinlogClientOptions {
 
   private boolean sendMessage;
 
-  private long connectTimeout = TimeUnit.SECONDS.toMillis(3);
+  private long connectTimeout = TimeUnit.SECONDS.toMillis(30);
 
   private String binlogFilename;
 

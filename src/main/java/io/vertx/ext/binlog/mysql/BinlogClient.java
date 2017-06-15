@@ -16,13 +16,13 @@ public interface BinlogClient extends ReadStream<JsonObject> {
     return new BinlogClientImpl(vertx, options);
   }
 
-  BinlogClient start();
+  BinlogClient connect();
 
-  BinlogClient start(Handler<AsyncResult<Void>> startHandler);
+  BinlogClient connect(Handler<AsyncResult<Void>> startHandler);
 
-  BinlogClient stop();
+  BinlogClient close();
 
-  BinlogClient stop(Handler<AsyncResult<Void>> stopHandler);
+  BinlogClient close(Handler<AsyncResult<Void>> closeHandler);
 
   @Override
   BinlogClient exceptionHandler(Handler<Throwable> handler);
@@ -39,7 +39,7 @@ public interface BinlogClient extends ReadStream<JsonObject> {
   @Override
   BinlogClient endHandler(Handler<Void> endHandler);
 
-  boolean started();
+  boolean connected();
 
   /**
    * The event bus address where the message sent to.

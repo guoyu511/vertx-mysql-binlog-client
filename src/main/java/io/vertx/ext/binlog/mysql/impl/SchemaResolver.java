@@ -8,13 +8,9 @@ import java.util.stream.Collectors;
 
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.asyncsql.AsyncSQLClient;
-import io.vertx.ext.asyncsql.MySQLClient;
-import io.vertx.ext.binlog.mysql.BinlogClientOptions;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLConnection;
 
@@ -31,17 +27,8 @@ public class SchemaResolver {
 
   private AsyncSQLClient sqlClient;
 
-  SchemaResolver(Vertx vertx, BinlogClientOptions options) {
-    //use a single connection to query information_schema
-    sqlClient = MySQLClient.createNonShared(vertx,
-      new JsonObject()
-        .put("host", options.getHost())
-        .put("port", options.getPort())
-        .put("database", "information_schema")
-        .put("maxPoolSize", 1)
-        .put("username", options.getUsername())
-        .put("password", options.getPassword())
-    );
+  SchemaResolver(AsyncSQLClient sqlClient) {
+    this.sqlClient = sqlClient;
   }
 
   void getColumns(String schema, String table, Handler<List<String>> handler) {

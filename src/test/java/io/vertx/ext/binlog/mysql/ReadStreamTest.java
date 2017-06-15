@@ -68,8 +68,9 @@ public class ReadStreamTest extends BinlogClientTestBase {
     }
 
     @Override
-    public synchronized WriteStream<JsonObject> write(JsonObject data) {
-      queue.push(data);
+    public synchronized WriteStream<JsonObject> write(JsonObject event) {
+      logger.info(event.toString());
+      queue.push(event);
       return this;
     }
 

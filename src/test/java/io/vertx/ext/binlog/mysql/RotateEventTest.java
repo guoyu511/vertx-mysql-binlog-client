@@ -14,12 +14,11 @@ public class RotateEventTest extends BinlogClientTestBase {
 
   @Test
   public void testRotateEvent() {
-    client.handler((evt) -> {
-      if ("rotate".equals(evt.getString("type"))) {
-        logger.info("Handle rotate event " +
-          evt.getString("filename") + "/" + evt.getLong("position"));
-        assertNotNull(evt.getString("filename"));
-        assertNotNull(evt.getLong("position"));
+    client.handler((event) -> {
+      if ("rotate".equals(event.getString("type"))) {
+        logger.info(event);
+        assertNotNull(event.getString("filename"));
+        assertNotNull(event.getLong("position"));
         testComplete();
       }
     });

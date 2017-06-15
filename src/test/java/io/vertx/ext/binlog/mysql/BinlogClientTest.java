@@ -71,6 +71,7 @@ public class BinlogClientTest extends BinlogClientTestBase {
       if (!"update".equals(event.getString("type"))) {
         return;
       }
+      logger.info(event.toString());
       assertEquals(config().getString("schema"), event.getString("schema"));
       assertEquals("binlog_client_test", event.getString("table"));
       assertEquals("update", event.getString("type"));

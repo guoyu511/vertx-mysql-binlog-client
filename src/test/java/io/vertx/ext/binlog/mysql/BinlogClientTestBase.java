@@ -70,7 +70,7 @@ public class BinlogClientTestBase extends VertxTestBase {
         .setHeartbeatInterval(5000)
     );
     CountDownLatch latch = new CountDownLatch(1);
-    client.start(onSuccess((ignore) ->
+    client.connect(onSuccess((ignore) ->
       latch.countDown()
     ));
     awaitLatch(latch);
@@ -79,8 +79,8 @@ public class BinlogClientTestBase extends VertxTestBase {
   @Override
   public void after() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
-    if (client.started()) {
-      client.stop((ignore) ->
+    if (client.connected()) {
+      client.close((ignore) ->
         latch.countDown()
       );
       awaitLatch(latch);

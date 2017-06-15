@@ -11,15 +11,11 @@ import com.github.shyiko.mysql.binlog.event.WriteRowsEventData;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
@@ -28,8 +24,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.binlog.mysql.BinlogClientOptions;
-import io.vertx.ext.sql.ResultSet;
-import io.vertx.ext.sql.SQLConnection;
 
 /**
  * @author <a href="mailto:guoyu.511@gmail.com">Guo Yu</a>
@@ -54,12 +48,13 @@ class EventDispatcher {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  EventDispatcher(Vertx vertx, BinlogClientOptions options, String messageAddress) {
+  EventDispatcher(Vertx vertx, BinlogClientOptions options,
+                  SchemaResolver schemaResolver, String messageAddress) {
     this.messageAddress = messageAddress;
     this.publishMessage = options.isPublishMessage();
     this.sendMessage = options.isSendMessage();
     this.eventBus = vertx.eventBus();
-    this.schemaResolver = new SchemaResolver(vertx, options);
+    this.schemaResolver = schemaResolver;
   }
 
   void dispatch(Event evt) {
@@ -104,10 +99,10 @@ class EventDispatcher {
       throw new IllegalStateException("Missing table map event");
     }
     evt.getRows()
-      .forEach(row ->
-        handleRowEvent(lastTableMap.getDatabase(), lastTableMap.getTable(),
-          "write", Arrays.asList(row))
-      );
+       .forEach(row ->
+         handleRowEvent(lastTableMap.getDatabase(), lastTableMap.getTable(),
+           "write", Arrays.asList(row))
+       );
     lastTableMap = null;
   }
 
@@ -116,10 +111,10 @@ class EventDispatcher {
       throw new IllegalStateException("Missing table map event");
     }
     evt.getRows()
-      .forEach(entry ->
-        handleRowEvent(lastTableMap.getDatabase(), lastTableMap.getTable(),
-          "update", Arrays.asList(entry.getValue()))
-      );
+       .forEach(entry ->
+         handleRowEvent(lastTableMap.getDatabase(), lastTableMap.getTable(),
+           "update", Arrays.asList(entry.getValue()))
+       );
     lastTableMap = null;
   }
 
@@ -128,10 +123,10 @@ class EventDispatcher {
       throw new IllegalStateException("Missing table map event");
     }
     evt.getRows()
-      .forEach(row ->
-        handleRowEvent(lastTableMap.getDatabase(), lastTableMap.getTable(),
-          "delete", Arrays.asList(row))
-      );
+       .forEach(row ->
+         handleRowEvent(lastTableMap.getDatabase(), lastTableMap.getTable(),
+           "delete", Arrays.asList(row))
+       );
     lastTableMap = null;
   }
 

@@ -17,6 +17,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import io.vertx.ext.asyncsql.AsyncSQLClient;
+import io.vertx.ext.asyncsql.MySQLClient;
 import io.vertx.ext.binlog.mysql.BinlogClient;
 import io.vertx.ext.binlog.mysql.BinlogClientOptions;
 
@@ -41,7 +43,7 @@ public class BinlogClientImpl implements BinlogClient {
 
   private long connectTimeout;
 
-  private volatile boolean running = false;
+  private volatile boolean connected = false;
 
   private volatile boolean pending = false;
 
@@ -54,6 +56,8 @@ public class BinlogClientImpl implements BinlogClient {
   private Context context;
 
   private EventDispatcher dispatcher;
+
+  private AsyncSQLClient sqlClient;
 
   private Thread shutdownHook = new Thread(() -> {
     try {
@@ -71,7 +75,17 @@ public class BinlogClientImpl implements BinlogClient {
     this.port = options.getPort();
     this.connectTimeout = options.getConnectTimeout();
     this.messageAddress = UUID.randomUUID().toString();
-    dispatcher = new EventDispatcher(vertx, options, messageAddress);
+    this.sqlClient = MySQLClient.createNonShared(vertx,
+      new JsonObject()
+        .put("host", options.getHost())
+        .put("port", options.getPort())
+        .put("database", "information_schema")
+        .put("maxPoolSize", 1)
+        .put("username", options.getUsername())
+        .put("password", options.getPassword())
+    );
+    dispatcher = new EventDispatcher(vertx, options,
+      new SchemaResolver(sqlClient), messageAddress);
     client = new BinaryLogClient(
       host, port,
       options.getUsername(),
@@ -91,16 +105,18 @@ public class BinlogClientImpl implements BinlogClient {
     client.registerEventListener(this::handle);
   }
 
-  public BinlogClientImpl start() {
-    return start((ar) -> {
+  @Override
+  public BinlogClientImpl connect() {
+    return connect((ar) -> {
     });
   }
 
-  public BinlogClientImpl start(Handler<AsyncResult<Void>> startHandler) {
-    if (running) {
-      throw new IllegalStateException("Client already started.");
+  @Override
+  public BinlogClientImpl connect(Handler<AsyncResult<Void>> startHandler) {
+    if (connected) {
+      throw new IllegalStateException("Client already connected.");
     }
-    running = true;
+    connected = true;
     vertx.<Void>executeBlocking((f) -> {
       try {
         client.connect(connectTimeout);
@@ -117,7 +133,7 @@ public class BinlogClientImpl implements BinlogClient {
             " started ");
         }
       } else {
-        running = false;
+        connected = false;
         if (exceptionHandler != null) {
           exceptionHandler.handle(ar.cause());
         }
@@ -127,16 +143,19 @@ public class BinlogClientImpl implements BinlogClient {
     return this;
   }
 
-  public BinlogClientImpl stop() {
-    return stop((ar) -> {
+  @Override
+  public BinlogClientImpl close() {
+    return close((ar) -> {
     });
   }
 
-  public BinlogClientImpl stop(Handler<AsyncResult<Void>> stopHandler) {
-    if (!running) {
-      throw new IllegalStateException("Client is not started.");
+  @Override
+  public BinlogClientImpl close(Handler<AsyncResult<Void>> closeHandler) {
+    if (!connected) {
+      throw new IllegalStateException("Client is not connected.");
     }
-    running = false;
+    sqlClient.close();
+    connected = false;
     vertx.<Void>executeBlocking((f) -> {
       try {
         client.disconnect();
@@ -155,36 +174,40 @@ public class BinlogClientImpl implements BinlogClient {
       if (ar.succeeded()) {
         if (endHandler != null)
           endHandler.handle(null);
-        stopHandler.handle(ar);
+        closeHandler.handle(ar);
       } else {
-        stopHandler.handle(ar);
+        closeHandler.handle(ar);
       }
     });
     return this;
   }
 
+  @Override
   public BinlogClientImpl exceptionHandler(Handler<Throwable> handler) {
     this.dispatcher.exceptionHandler(handler);
     this.exceptionHandler = handler;
     return this;
   }
 
+  @Override
   public BinlogClientImpl handler(Handler<JsonObject> handler) {
     this.dispatcher.handler(handler);
     return this;
   }
 
+  @Override
   public BinlogClientImpl pause() {
-    if (!running) {
-      throw new IllegalStateException("Client is not started.");
+    if (!connected) {
+      throw new IllegalStateException("Client is not connected.");
     }
     this.pending = true;
     return this;
   }
 
+  @Override
   public BinlogClientImpl resume() {
-    if (!running) {
-      throw new IllegalStateException("Client is not started.");
+    if (!connected) {
+      throw new IllegalStateException("Client is not connected.");
     }
     this.pending = false;
     try {
@@ -196,14 +219,15 @@ public class BinlogClientImpl implements BinlogClient {
     return this;
   }
 
+  @Override
   public BinlogClientImpl endHandler(Handler<Void> endHandler) {
     this.endHandler = endHandler;
     return this;
   }
 
   @Override
-  public boolean started() {
-    return running;
+  public boolean connected() {
+    return connected;
   }
 
   @Override
@@ -211,13 +235,13 @@ public class BinlogClientImpl implements BinlogClient {
     return messageAddress;
   }
 
-  public BinaryLogClient getClinet() {
+  public BinaryLogClient getClient() {
     return client;
   }
 
   //this method will be called on blc thread
   private void handle(Event eventSrc) {
-    if (!running) {
+    if (!connected) {
       return;
     }
     try {
