@@ -23,6 +23,7 @@ public interface BinlogClient extends ReadStream<JsonObject> {
   BinlogClient stop();
 
   BinlogClient stop(Handler<AsyncResult<Void>> stopHandler);
+
   @Override
   BinlogClient exceptionHandler(Handler<Throwable> handler);
 
