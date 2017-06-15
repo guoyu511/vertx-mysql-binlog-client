@@ -99,7 +99,7 @@ For a data modification event (write / update / delete) the `JsonObject` will be
   "schema" : "test_db",
   "table" : "test_table",
   "row" : {
-    "id" : 1000
+    "id" : 1000,
     "name" : "tim"
   }
 }
