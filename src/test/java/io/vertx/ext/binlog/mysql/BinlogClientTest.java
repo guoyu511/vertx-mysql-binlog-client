@@ -20,6 +20,7 @@ public class BinlogClientTest extends BinlogClientTestBase {
       if (!"write".equals(event.getString("type"))) {
         return;
       }
+      logger.info(event.toString());
       assertEquals(config().getString("schema"), event.getString("schema"));
       assertEquals("binlog_client_test", event.getString("table"));
       JsonObject json = event.getJsonObject("row");
@@ -44,6 +45,7 @@ public class BinlogClientTest extends BinlogClientTestBase {
       if (!"delete".equals(event.getString("type"))) {
         return;
       }
+      logger.info(event.toString());
       assertEquals(config().getString("schema"), event.getString("schema"));
       assertEquals("binlog_client_test", event.getString("table"));
       assertEquals("delete", event.getString("type"));

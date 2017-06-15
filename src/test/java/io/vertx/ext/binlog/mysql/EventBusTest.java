@@ -24,6 +24,7 @@ public class EventBusTest extends BinlogClientTestBase {
         return;
       }
       JsonObject body = msg.body();
+      logger.info(body.toString());
       assertEquals(config().getString("schema"), msg.headers().get("schema"));
       assertEquals("binlog_client_test", body.getString("table"));
       JsonObject row = body.getJsonObject("row");
@@ -49,6 +50,7 @@ public class EventBusTest extends BinlogClientTestBase {
         return;
       }
       JsonObject body = msg.body();
+      logger.info(body.toString());
       assertEquals(config().getString("schema"), msg.headers().get("schema"));
       assertEquals("binlog_client_test", body.getString("table"));
       JsonObject row = body.getJsonObject("row");
@@ -74,6 +76,7 @@ public class EventBusTest extends BinlogClientTestBase {
         return;
       }
       JsonObject body = msg.body();
+      logger.info(body.toString());
       assertEquals(config().getString("schema"), msg.headers().get("schema"));
       assertEquals("binlog_client_test", body.getString("table"));
       JsonObject row = body.getJsonObject("row");

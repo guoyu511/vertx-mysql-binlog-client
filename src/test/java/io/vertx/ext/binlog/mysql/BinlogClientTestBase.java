@@ -1,11 +1,9 @@
 package io.vertx.ext.binlog.mysql;
 
 
-import com.github.shyiko.mysql.binlog.BinaryLogClient;
-
-import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -38,6 +36,8 @@ public class BinlogClientTestBase extends VertxTestBase {
   };
 
   BinlogClient client;
+
+  Logger logger = LoggerFactory.getLogger(getClass());
 
   @BeforeClass
   public static void init() throws Exception {
@@ -131,6 +131,7 @@ public class BinlogClientTestBase extends VertxTestBase {
   }
 
   void executeSql(String sql) {
+    logger.info("SQL: " + sql);
     try {
       conn
         .createStatement()

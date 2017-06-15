@@ -21,6 +21,7 @@ public class AlterTableTest extends BinlogClientTestBase {
       if (!"write".equals(event.getString("type"))) {
         return;
       }
+      logger.info(event.toString());
       JsonObject row = event.getJsonObject("row");
       assertEquals(randomName, row.getString("name"));
       assertEquals(extraValue, row.getString("extra"));
@@ -40,6 +41,7 @@ public class AlterTableTest extends BinlogClientTestBase {
       if (!"write".equals(event.getString("type"))) {
         return;
       }
+      logger.info(event.toString());
       JsonObject row = event.getJsonObject("row");
       assertFalse(row.containsKey("name"));
       testComplete();
