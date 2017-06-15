@@ -10,6 +10,7 @@ addons:
 before_install:
   - echo binlog-format=ROW >> sudo tee -a /etc/mysql/my.cnf
   - echo log-bin=mysql-bin >> sudo tee -a /etc/mysql/my.cnf
+  - cat /etc/mysql/my.cnf
   - sudo service mysql restart
   - mysql -e 'CREATE DATABASE IF NOT EXISTS binlog_test;'
 script: mvn -DargLine="-Dbinlog.user=root -Dbinlog.host=127.0.0.1 -Dbinlog.port=3306 -Dbinlog.schema=binlog_test" clean test-compile test
