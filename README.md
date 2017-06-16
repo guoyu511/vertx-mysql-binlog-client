@@ -142,6 +142,22 @@ Even using `Pump` to pump the events to another `WriteStream`:
 Pump.pump(binlogClient, targetStream);
 ```
 
+### Using with EventBus
+
+The binlogClient will send events to event bus automatically. To handle those events, use `address` method to get the message address first:
+
+```java
+String address = bingloClient.address();
+```
+
+Then use the address to register a message consumer:
+
+```java
+eventBus.consumer(address, (message) -> {
+  JsonObject event = message.body(); // retreive the event from message body.
+});
+```
+
 ### Binlog Filename and position
 
 Some time you need to know the filename and the position where the replication stream at. 
