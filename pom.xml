@@ -24,6 +24,13 @@
     </license>
   </licenses>
 
+  <developers>
+    <developer>
+      <name>Guo Yu</name>
+      <email>guoyu.511@gmail.com</email>
+    </developer>
+  </developers>
+
   <scm>
     <connection>scm:git:git@github.com:guoyu511/vertx-mysql-binlog-client.git</connection>
     <developerConnection>scm:git:git@github.com:guoyu511/vertx-mysql-binlog-client.git</developerConnection>
