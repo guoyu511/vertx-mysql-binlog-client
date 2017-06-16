@@ -32,7 +32,7 @@ Get the latest JAR(s) from here. Alternatively you can include following Maven d
 <dependency>
     <groupId>io.github.guoyu511</groupId>
     <artifactId>vertx-mysql-binlog</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
