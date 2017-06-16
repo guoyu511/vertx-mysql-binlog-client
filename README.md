@@ -2,7 +2,7 @@
 
 [![Travis CI](https://travis-ci.org/guoyu511/vertx-mysql-binlog-client.svg?branch=master)](https://travis-ci.org/guoyu511/vertx-mysql-binlog-client)
 
-A Vert.x client allowing applications tapping into MySQL replication stream.
+A Vert.x client allowing applications tapping into MySQL replication stream. Based on Vert.x 3.4.1.
 
 It uses [MySQL Binary Log connector](https://github.com/shyiko/mysql-binlog-connector-java) to interact with the MySQL which implemented the MySQL binlog protocol by java.
 

@@ -6,13 +6,35 @@
 
   <groupId>io.github.guoyu511</groupId>
   <artifactId>vertx-mysql-binlog</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>0.1.0</version>
   <description>A Vert.x client allowing applications tapping into MySQL replication stream.</description>
+  <packaging>jar</packaging>
+
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:git@github.com:guoyu511/vertx-mysql-binlog-client.git</connection>
+    <developerConnection>scm:git:git@github.com:guoyu511/vertx-mysql-binlog-client.git</developerConnection>
+    <url>git@github.com:guoyu511/vertx-mysql-binlog-client.git</url>
+  </scm>
 
   <properties>
     <stack.version>3.4.1</stack.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <file.encoding>UTF-8</file.encoding>
   </properties>
 
   <dependencyManagement>
@@ -68,5 +90,38 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <charset>${file.encoding}</charset>
+          <encoding>${file.encoding}</encoding>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
