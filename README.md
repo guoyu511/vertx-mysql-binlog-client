@@ -144,7 +144,7 @@ Pump.pump(binlogClient, targetStream).start();
 
 Or pump the stream to event bus message producer:
 
-``java
+```java
 Pump.pump(binlogClient, eventBus.sender('binlog.event')).start();
 
 // handle the event by event bus
