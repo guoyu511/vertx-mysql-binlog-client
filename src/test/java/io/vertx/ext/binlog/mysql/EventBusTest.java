@@ -8,23 +8,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.streams.Pump;
 
 /**
  * @author <a href="mailto:guoyu.511@gmail.com">Guo Yu</a>
  */
 public class EventBusTest extends BinlogClientTestBase {
 
-  private MessageConsumer<JsonObject> consumer;
-
   @Test
   public void testInsert() throws SQLException {
     AtomicInteger counter = new AtomicInteger(0);
-    consumer = vertx.eventBus().consumer(client.address(), (msg) -> {
-      if (!"write".equals(msg.headers().get("type"))) {
+    Pump.pump(client, vertx.eventBus().publisher("binlog")).start();
+    vertx.eventBus().<JsonObject>consumer("binlog", (msg) -> {
+      JsonObject body = msg.body();
+      if (!"write".equals(body.getString("type"))) {
         return;
       }
-      JsonObject body = msg.body();
-      logger.info(body.toString());
       assertEquals(config().getString("schema"), body.getString("schema"));
       assertEquals("binlog_client_test", body.getString("table"));
       JsonObject row = body.getJsonObject("row");
@@ -34,7 +33,7 @@ public class EventBusTest extends BinlogClientTestBase {
       assertEquals(expectedRow.getKey(), id);
       assertEquals(expectedRow.getValue(), name);
       if (id.equals(lastId())) {
-        consumer.unregister(onSuccess((ignore) -> testComplete()));
+        testComplete();
       }
     });
     insert();
@@ -43,14 +42,13 @@ public class EventBusTest extends BinlogClientTestBase {
 
   @Test
   public void testDelete() throws SQLException {
-    insert();
     AtomicInteger counter = new AtomicInteger(0);
-    consumer = vertx.eventBus().consumer(client.address(), (msg) -> {
-      if (!"delete".equals(msg.headers().get("type"))) {
+    Pump.pump(client, vertx.eventBus().publisher("binlog")).start();
+    vertx.eventBus().<JsonObject>consumer("binlog", (msg) -> {
+      JsonObject body = msg.body();
+      if (!"delete".equals(body.getString("type"))) {
         return;
       }
-      JsonObject body = msg.body();
-      logger.info(body.toString());
       assertEquals(config().getString("schema"), body.getString("schema"));
       assertEquals("binlog_client_test", body.getString("table"));
       JsonObject row = body.getJsonObject("row");
@@ -60,23 +58,23 @@ public class EventBusTest extends BinlogClientTestBase {
       assertEquals(expectedRow.getKey(), id);
       assertEquals(expectedRow.getValue(), name);
       if (id.equals(lastId())) {
-        consumer.unregister(onSuccess((ignore) -> testComplete()));
+        testComplete();
       }
     });
+    insert();
     delete();
     await();
   }
 
   @Test
   public void testUpdate() throws SQLException {
-    insert();
     AtomicInteger counter = new AtomicInteger(0);
-    consumer = vertx.eventBus().consumer(client.address(), (msg) -> {
-      if (!"update".equals(msg.headers().get("type"))) {
+    Pump.pump(client, vertx.eventBus().publisher("binlog")).start();
+    vertx.eventBus().<JsonObject>consumer("binlog", (msg) -> {
+      JsonObject body = msg.body();
+      if (!"update".equals(body.getString("type"))) {
         return;
       }
-      JsonObject body = msg.body();
-      logger.info(body.toString());
       assertEquals(config().getString("schema"), body.getString("schema"));
       assertEquals("binlog_client_test", body.getString("table"));
       JsonObject row = body.getJsonObject("row");
@@ -86,9 +84,10 @@ public class EventBusTest extends BinlogClientTestBase {
       assertEquals(expectedRow.getKey(), id);
       assertEquals(expectedRow.getValue() + "_updated", name);
       if (id.equals(lastId())) {
-        consumer.unregister(onSuccess((ignore) -> testComplete()));
+        testComplete();
       }
     });
+    insert();
     update();
     await();
   }

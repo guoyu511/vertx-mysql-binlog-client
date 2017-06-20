@@ -55,7 +55,7 @@ The `BinlogClientOptions` containing the following values:
 * `filename` the binlog file where to starts. Default is the current file as master
 * `position` the binlog position where to starts. Default is the current position as master
 * `keepAlive` enable "keep alive" feature on this client. Default is true
-* `keepAliveInterval` "keep alive" interval in milliseconds. Default is 1000
+* `keepAliveInterval` "keep alive" interval in milliseconds. Default is 1 minutes
 * `heartbeatInterval` heartbeat interval in milliseconds. Default is 0 means no heartbeat
 
 Be sure that the user **must** has the `REPLICATION CLIENT` privilege for the given schema.
@@ -139,24 +139,49 @@ binlogClient.resume();
 Even using `Pump` to pump the events to another `WriteStream`:
 
 ```java
-Pump.pump(binlogClient, targetStream);
+Pump.pump(binlogClient, targetStream).start();
 ```
 
-### Using with EventBus
+Or pump the stream to event bus message producer:
 
-The binlogClient will send events to event bus automatically. To handle those events, use `address` method to get the message address first:
+``java
+Pump.pump(binlogClient, eventBus.sender('binlog.event')).start();
 
-```java
-String address = bingloClient.address();
-```
-
-Then use the address to register a message consumer:
-
-```java
-eventBus.consumer(address, (message) -> {
-  JsonObject event = message.body(); // retreive the event from message body.
+// handle the event by event bus
+eventBus.consumer('binlog.event', (msg) -> {
+  JsonObject json = msg.body();
 });
 ```
+
+### Using with RxJava
+
+It also provided a Rx-ified version of the binlog client.
+
+To using the Rx-ified api, create binlog client instance using the `BinlogClient` interface under the `io.vertx.rxjava.ext.binlog.mysql` package with the RX version of vertx.
+
+```java
+import io.vertx.rxjava.ext.binlog.mysql.BinlogClient;
+
+BinlogClient rxBinlogClient = BinlogClient.create(rxVertx, options);
+
+```
+
+Or wrap a existing client:
+
+```java
+BinlogClient rxClient = BinlogClient.newInstance(client);
+```
+
+Then you can use the client as a `Observable`, for example, handle all `update` events:
+
+```
+rxClient.toObservable()
+  .filter((event) -> "update".equals(event.getString("type")))
+  .subscribe((event) -> {
+    //do sth with this event
+  });
+```
+
 
 ### Binlog Filename and position
 

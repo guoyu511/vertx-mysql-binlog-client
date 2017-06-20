@@ -35,9 +35,9 @@ public class BinlogClientTestBase extends VertxTestBase {
     "CREATE TABLE `binlog_client_test` (`id` int(11) NOT NULL AUTO_INCREMENT,`name` varchar(100) NOT NULL,PRIMARY KEY (`id`));"
   };
 
-  BinlogClient client;
+  protected BinlogClient client;
 
-  Logger logger = LoggerFactory.getLogger(getClass());
+  protected Logger logger = LoggerFactory.getLogger(getClass());
 
   @BeforeClass
   public static void init() throws Exception {
@@ -48,7 +48,7 @@ public class BinlogClientTestBase extends VertxTestBase {
     );
     rows = IntStream
       .iterate(1, i -> i + 1)
-      .limit(Integer.parseInt(System.getProperty("binlog.rows", "1000")))
+      .limit(Integer.parseInt(System.getProperty("binlog.rows", "100")))
       .boxed()
       .map(i -> new AbstractMap.SimpleEntry<>(i, UUID.randomUUID().toString()))
       .collect(Collectors.toList());
@@ -66,7 +66,6 @@ public class BinlogClientTestBase extends VertxTestBase {
         .setPassword(config().getString("password"))
         .setHost(config().getString("host"))
         .setPort(config().getInteger("port"))
-        .setSendMessage(true)
         .setHeartbeatInterval(5000)
     );
     CountDownLatch latch = new CountDownLatch(1);
@@ -85,10 +84,9 @@ public class BinlogClientTestBase extends VertxTestBase {
       );
       awaitLatch(latch);
     }
-    delete();
   }
 
-  static JsonObject config() {
+  protected static JsonObject config() {
     JsonObject config = new JsonObject()
       .put("user", System.getProperty("binlog.user", "root"))
       .put("password", System.getProperty("binlog.password"))
@@ -100,36 +98,36 @@ public class BinlogClientTestBase extends VertxTestBase {
     return config;
   }
 
-  void insert() {
+  protected void insert() {
     rows.forEach(e ->
       executeSql("INSERT INTO `binlog_client_test` (id, name) " +
         " VALUES (" + e.getKey() + ", '" + e.getValue() + "');")
     );
   }
 
-  void delete() {
+  protected void delete() {
     rows.forEach(e ->
       executeSql("DELETE FROM `binlog_client_test`" +
         " WHERE id=" + e.getKey())
     );
   }
 
-  void update() {
+  protected void update() {
     rows.forEach(e ->
       executeSql("UPDATE `binlog_client_test`" +
         " SET name='" + e.getValue() + "_updated" + "' WHERE id=" + e.getKey())
     );
   }
 
-  List<Map.Entry<Integer, String>> rows() {
+  protected List<Map.Entry<Integer, String>> rows() {
     return rows;
   }
 
-  Integer lastId() {
+  protected Integer lastId() {
     return rows.get(rows.size() - 1).getKey();
   }
 
-  void executeSql(String sql) {
+  protected void executeSql(String sql) {
     logger.info("SQL: " + sql);
     try {
       conn

@@ -2,51 +2,59 @@ package io.vertx.ext.binlog.mysql;
 
 import java.util.concurrent.TimeUnit;
 
+import io.vertx.codegen.annotations.DataObject;
+import io.vertx.core.json.JsonObject;
+
 /**
  * @author <a href="mailto:guoyu.511@gmail.com">Guo Yu</a>
  */
+@DataObject(generateConverter = true)
 public class BinlogClientOptions {
 
-  private String host = "localhost";
+  private static final String DEFAULT_HOST = "localhost";
 
-  private int port = 3306;
+  private static final int DEFAULT_PORT = 3306;
 
-  private String username = "root";
+  private static final String DEFAULT_USERNAME = "root";
 
-  private String password;
+  private static final String DEFAULT_PASSWORD = null;
 
-  private boolean publishMessage;
+  private static final long DEFAULT_CONNECT_TIMEOUT = TimeUnit.SECONDS.toMillis(30);
 
-  private boolean sendMessage;
+  private static final String DEFAULT_FILENAME = null;
 
-  private long connectTimeout = TimeUnit.SECONDS.toMillis(30);
+  private static final long DEFAULT_POSITION = -1;
 
-  private String filename;
+  private static final boolean DEFAULT_KEEP_ALIVE = true;
 
-  private long position = -1;
+  private static final long DEFAULT_KEEP_ALIVE_INTERVAL= TimeUnit.MINUTES.toMillis(1);
 
-  private boolean keepAlive = true;
+  private static final long DEFAULT_HEARTBEAT_INTERVAL = 0;
 
-  private long keepAliveInterval = TimeUnit.MINUTES.toMillis(1);
+  private String host = DEFAULT_HOST;
 
-  private long heartbeatInterval = 0;
+  private int port = DEFAULT_PORT;
 
-  public boolean isPublishMessage() {
-    return publishMessage;
-  }
+  private String username = DEFAULT_USERNAME;
 
-  public BinlogClientOptions setPublishMessage(boolean publishMessage) {
-    this.publishMessage = publishMessage;
-    return this;
-  }
+  private String password = DEFAULT_PASSWORD;
 
-  public boolean isSendMessage() {
-    return sendMessage;
-  }
+  private long connectTimeout = DEFAULT_CONNECT_TIMEOUT;
 
-  public BinlogClientOptions setSendMessage(boolean sendMessage) {
-    this.sendMessage = sendMessage;
-    return this;
+  private String filename = DEFAULT_FILENAME;
+
+  private long position = DEFAULT_POSITION;
+
+  private boolean keepAlive = DEFAULT_KEEP_ALIVE;
+
+  private long keepAliveInterval = DEFAULT_KEEP_ALIVE_INTERVAL;
+
+  private long heartbeatInterval = DEFAULT_HEARTBEAT_INTERVAL;
+
+  public BinlogClientOptions() {}
+
+  public BinlogClientOptions(JsonObject json) {
+    BinlogClientOptionsConverter.fromJson(json, this);
   }
 
   public long getHeartbeatInterval() {

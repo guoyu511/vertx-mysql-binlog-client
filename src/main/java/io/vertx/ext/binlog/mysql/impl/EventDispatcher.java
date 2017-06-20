@@ -4,7 +4,6 @@ import com.github.shyiko.mysql.binlog.event.DeleteRowsEventData;
 import com.github.shyiko.mysql.binlog.event.Event;
 import com.github.shyiko.mysql.binlog.event.EventType;
 import com.github.shyiko.mysql.binlog.event.QueryEventData;
-import com.github.shyiko.mysql.binlog.event.RotateEventData;
 import com.github.shyiko.mysql.binlog.event.TableMapEventData;
 import com.github.shyiko.mysql.binlog.event.UpdateRowsEventData;
 import com.github.shyiko.mysql.binlog.event.WriteRowsEventData;
@@ -18,23 +17,15 @@ import java.util.stream.IntStream;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import io.vertx.ext.binlog.mysql.BinlogClientOptions;
 
 /**
  * @author <a href="mailto:guoyu.511@gmail.com">Guo Yu</a>
  */
 class EventDispatcher {
-
-  private String messageAddress;
-
-  private boolean publishMessage;
-
-  private boolean sendMessage;
 
   private EventBus eventBus;
 
@@ -48,11 +39,7 @@ class EventDispatcher {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  EventDispatcher(Vertx vertx, BinlogClientOptions options,
-                  SchemaResolver schemaResolver, String messageAddress) {
-    this.messageAddress = messageAddress;
-    this.publishMessage = options.isPublishMessage();
-    this.sendMessage = options.isSendMessage();
+  EventDispatcher(Vertx vertx, SchemaResolver schemaResolver) {
     this.eventBus = vertx.eventBus();
     this.schemaResolver = schemaResolver;
   }
@@ -162,19 +149,6 @@ class EventDispatcher {
   private void notify(JsonObject event) {
     if (handler != null) {
       handler.handle(event);
-    }
-    if (publishMessage) {
-      eventBus.publish(
-        messageAddress, event,
-        new DeliveryOptions()
-          .addHeader("type", event.getString("type"))
-      );
-    } else if (sendMessage) {
-      eventBus.send(
-        messageAddress, event,
-        new DeliveryOptions()
-          .addHeader("type", event.getString("type"))
-      );
     }
   }
 

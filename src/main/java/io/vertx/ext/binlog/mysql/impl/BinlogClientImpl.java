@@ -47,8 +47,6 @@ public class BinlogClientImpl implements BinlogClient {
 
   private volatile boolean pending = false;
 
-  private String messageAddress;
-
   private Lock lock = new ReentrantLock();
 
   private Condition pendingCondition = lock.newCondition();
@@ -74,7 +72,6 @@ public class BinlogClientImpl implements BinlogClient {
     this.host = options.getHost();
     this.port = options.getPort();
     this.connectTimeout = options.getConnectTimeout();
-    this.messageAddress = UUID.randomUUID().toString();
     this.sqlClient = MySQLClient.createNonShared(vertx,
       new JsonObject()
         .put("host", options.getHost())
@@ -82,10 +79,12 @@ public class BinlogClientImpl implements BinlogClient {
         .put("database", "information_schema")
         .put("maxPoolSize", 1)
         .put("username", options.getUsername())
-        .put("password", options.getPassword())
+        .put("password",
+            "".equals(options.getPassword()) ?
+              null : options.getPassword())
     );
-    dispatcher = new EventDispatcher(vertx, options,
-      new SchemaResolver(sqlClient), messageAddress);
+    dispatcher = new EventDispatcher(vertx,
+      new SchemaResolver(sqlClient));
     client = new BinaryLogClient(
       host, port,
       options.getUsername(),
@@ -228,11 +227,6 @@ public class BinlogClientImpl implements BinlogClient {
   @Override
   public boolean connected() {
     return connected;
-  }
-
-  @Override
-  public String address() {
-    return messageAddress;
   }
 
   @Override

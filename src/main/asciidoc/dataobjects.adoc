@@ -1,0 +1,25 @@
+= Cheatsheets
+
+[[BinlogClientOptions]]
+== BinlogClientOptions
+
+++++
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[connectTimeout]]`connectTimeout`|`Number (long)`|-
+|[[filename]]`filename`|`String`|-
+|[[heartbeatInterval]]`heartbeatInterval`|`Number (long)`|-
+|[[host]]`host`|`String`|-
+|[[keepAlive]]`keepAlive`|`Boolean`|-
+|[[keepAliveInterval]]`keepAliveInterval`|`Number (long)`|-
+|[[password]]`password`|`String`|-
+|[[port]]`port`|`Number (int)`|-
+|[[position]]`position`|`Number (long)`|-
+|[[username]]`username`|`String`|-
+|===
+
