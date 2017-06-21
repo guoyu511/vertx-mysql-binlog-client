@@ -168,10 +168,6 @@
               <name>binlog.schema</name>
               <value>${binlog.schema}</value>
             </property>
-            <property>
-              <name>binlog.rows</name>
-              <value>${binlog.rows}</value>
-            </property>
           </systemProperties>
         </configuration>
       </plugin>
