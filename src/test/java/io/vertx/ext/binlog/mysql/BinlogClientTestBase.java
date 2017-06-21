@@ -39,6 +39,8 @@ public class BinlogClientTestBase extends VertxTestBase {
 
   protected Logger logger = LoggerFactory.getLogger(getClass());
 
+  private static final int ROWS = 1000;
+
   @BeforeClass
   public static void init() throws Exception {
     conn = DriverManager.getConnection(
@@ -48,7 +50,7 @@ public class BinlogClientTestBase extends VertxTestBase {
     );
     rows = IntStream
       .iterate(1, i -> i + 1)
-      .limit(Integer.parseInt(System.getProperty("binlog.rows", "100")))
+      .limit(ROWS)
       .boxed()
       .map(i -> new AbstractMap.SimpleEntry<>(i, UUID.randomUUID().toString()))
       .collect(Collectors.toList());
