@@ -1,6 +1,5 @@
 package io.vertx.ext.binlog.mysql;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.UUID;
@@ -10,7 +9,6 @@ import io.vertx.core.json.JsonObject;
 /**
  * @author <a href="mailto:guoyu.511@gmail.com">Guo Yu</a>
  */
-@Ignore
 public class AlterTableTest extends BinlogClientTestBase {
 
   @Test
