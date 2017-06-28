@@ -17,7 +17,7 @@ import io.vertx.ext.sql.SQLConnection;
 /**
  * @author <a href="mailto:guoyu.511@gmail.com">Guo Yu</a>
  */
-public class SchemaResolver {
+class SchemaResolver {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
